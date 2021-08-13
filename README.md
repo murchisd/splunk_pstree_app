@@ -12,10 +12,10 @@ This apps main function is to enable a custom Splunk search command to reconstru
 ## Installation
 
 There are several ways to implement the command. Here are two:
-* Install from file - Click "Clone or Download" then "Downlad Zip". The zip file can be used with Splunk's "Install App from File"
-* Copy app to etc - Clone the repo, then copy "splunk_pstree_app" directory to $SPLUNK_HOME/etc/apps
+* Install from file - Click "Clone or Download" then "Downlad Zip". The tgz file in repo can be used with Splunk's "Install App from File"
+* Copy splunk_pstree_app directory to etc - Clone the repo, then copy "splunk_pstree_app" directory to $SPLUNK_HOME/etc/apps
 
-Installation will require a restart of splunkd.
+Installation by copying directory will require a restart of splunkd.
 
 ## Usage 
 
@@ -31,13 +31,12 @@ index=sysmon EventCode=1 host=victim_machine
 
 Pretty Sysmon Usage
 ```
-index=sysmon EventCode=1 host=victim_machine
 | rex field=ParentImage "\x5c(?<ParentName>[^\x5c]+)$"
-| rex field=ParentImage "\x5c(?<ProcessName>[^\x5c]+)$"
+| rex field=Image "\x5c(?<ProcessName>[^\x5c]+)$"
 | eval parent = ParentName." (".ParentProcessId.")"
 | eval child = ProcessName." (".ProcessId.")"
-| table parent child
-| pstree child=child parent=parent
+| eval detail=strftime(_time,"%Y-%m-%d %H:%M:%S")." ".CommandLine
+| pstree child=child parent=parent detail=detail spaces=50
 | table tree
 ```
 
