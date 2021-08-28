@@ -80,36 +80,47 @@ class PSTreeCommand(EventingCommand):
         require=False, validate=validators.Integer())
 
         def make_tree(self,parent,details, tree, indent, return_array, prefix, spaces):
-                space=" "
-                if (len(parent)+len(prefix)) < spaces:
-                    space=space*(spaces-len(prefix)-len(parent))
-                return_array.append(prefix+parent+space+details)
-                if parent not in tree:
-                        return
-                children = tree[parent].keys()
-                for child in children:
-                        self.make_tree(child, tree[parent][child],tree, indent + "`` ",return_array, indent + "|--- ",spaces)
-                #child = tree[parent][-1]
-                #self.make_tree(child, tree, indent + "  ",return_array, indent + "\_ ")
+            #Adjust number of spaces to keep consistently spaced column for details
+            space=" "
+            if (len(parent)+len(prefix)) < spaces:
+                space=space*(spaces-len(prefix)-len(parent))
+            # Append line for process in tree
+            return_array.append(prefix+parent+space+details)
+            # Check to see if current process had any children 
+            if parent not in tree:
+                    return
+            #For every child process recursively build tree
+            children = tree[parent].keys()
+            for child in children: 
+                self.make_tree(child, tree[parent][child],tree, indent + "`` ",return_array, indent + "|--- ",spaces)
+
 
 
         def transform(self, records):
-                self.logger.debug('PSTreeCommandCommand: %s', self)  # logs command line
-                tree= collections.defaultdict(lambda: collections.defaultdict(str))
+                self.logger.debug('PSTreeCommand: %s', self)  
+                #initialize tree structure as dictionary of dictionaries (updated to dict of dict to allow passing of details)
+                tree=collections.defaultdict(lambda: collections.defaultdict(str))
+                #initialize array to keep track of children processes
                 children=[]
+                #Set default spaces to 120
                 spaces=120
                 if self.spaces:
                     spaces=self.spaces
+                # For every event add parent as key in outer dict and child as key in nested dict
                 for record in records:
+                    # If detail exists for the event set as value for inner dict other wise set as empty
                     if self.detail:
                         tree[record[self.parent]][record[self.child]]=record[self.detail]
                     else:
                         tree[record[self.parent]][record[self.child]]=""
+                    #Add child to array to be able find root of pstree - every process associated with an EventCode 1 will be in this array
                     children.append(record[self.child])
                 for parent in tree:
-                        if parent not in children:
-                                tmp=[]
-                                self.make_tree(parent,'',tree,'',tmp,'',spaces)
-                                yield {"tree":tmp}
+                    #For every parent check if in children array - only Parent Processes with no Process Creation event(Event Code 1) will match this criteria
+                    if parent not in children:
+                            tmp=[]
+                            #Recursively build tree for every root process
+                            self.make_tree(parent,'',tree,'',tmp,'',spaces)
+                            yield {"tree":tmp}
 
 dispatch(PSTreeCommand, sys.argv, sys.stdin, sys.stdout, __name__)
