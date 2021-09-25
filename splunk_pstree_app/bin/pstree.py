@@ -109,6 +109,7 @@ class PSTreeCommand(EventingCommand):
                 # For every event add parent as key in outer dict and child as key in nested dict
                 for record in records:
                     # If detail exists for the event set as value for inner dict other wise set as empty
+                    self.logger.debug('%s:%s', self.parent,record)
                     if self.detail:
                         tree[record[self.parent]][record[self.child]]=record[self.detail]
                     else:
