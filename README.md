@@ -6,8 +6,7 @@ This apps main function is to enable a custom Splunk search command to reconstru
 
 ## Prerequisites
 
-* Splunk Python SDK - [Install Splunk SDK for Python](http://dev.splunk.com/view/python-sdk/SP-CAAAEDG)
-* Ingest Sysmon Process Creation Events in Splunk
+* Ingest Process Creation Events with Parent Process information in Splunk
 
 ## Installation
 

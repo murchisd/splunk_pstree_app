@@ -1,6 +1,8 @@
 # Splunk PSTree Command
 
 This apps main function is to enable a custom Splunk search command to reconstruct a pstree from Sysmon process creation events (EventCode 1). Information from memory forensics, such as Volatility's pstree, can be very helpful to detect malicious processes. By ingesting Sysmon events in Splunk and using this command you can quickly get similar information without performing memory forensics.  
+  
+![Splunk PSTree](https://github.com/murchisd/murchisd.github.io/raw/master/assets/splunk/pstree.JPG)
 
 ## Prerequisites
 
@@ -16,10 +18,12 @@ Installation by copying directory will require a restart of splunkd.
 
 ## Usage 
 
-The pstree command requires two arguments, child and parent. The command is intended for sysmon EventCode=1 events but can be used for anything. The command returns a row for each root value with a multivalue field, "tree", containing the root value and all childern values.
-
-The pstree command now uses an iterative algorithm to create process tree. The legacy recursive algorithm can be used by specifying `method="r"`. 
-
+The pstree command requires two arguments, child and parent. The command is intended for sysmon EventCode=1 events but can be used for anything. The command returns a row for each root value with a multivalue field, "tree", containing the root value and all childern values.  
+  
+The pstree command now uses an iterative algorithm to create process tree. The legacy recursive algorithm can be used by specifying `method="r"`.  
+  
+**Note:** Fields passed as arguments to the pstree command must be referenced before calling pstree. The simplest way to ensure this is to include "| fields *" prior to piping to pstree. Thanks to **spitzd** for discovering.  
+  
 Simple Sysmon Usage
 
 ```
@@ -48,9 +52,9 @@ index=sysmon EventCode=1 host=victim_machine
 | table tree
 ```
 
-To report problems, please go to issues section on Github
-
-https://github.com/murchisd/splunk_pstree_app/issues
-
+To report problems, please go to issues section on Github  
+  
+https://github.com/murchisd/splunk_pstree_app/issues  
+  
 Built By Donald Murchison
 
