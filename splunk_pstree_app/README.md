@@ -18,6 +18,8 @@ Installation by copying directory will require a restart of splunkd.
 
 The pstree command requires two arguments, child and parent. The command is intended for sysmon EventCode=1 events but can be used for anything. The command returns a row for each root value with a multivalue field, "tree", containing the root value and all childern values.
 
+The pstree command now uses an iterative algorithm to create process tree. The legacy recursive algorithm can be used by specifying `method="r"`. 
+
 Simple Sysmon Usage
 
 ```
@@ -35,6 +37,14 @@ index=sysmon EventCode=1 host=victim_machine
 | eval child = ProcessName." (".ProcessId.")"
 | eval detail=strftime(_time,"%Y-%m-%d %H:%M:%S")." ".CommandLine
 | pstree child=child parent=parent detail=detail spaces=50
+| table tree
+```
+
+Use legacy recursive method
+```
+index=sysmon EventCode=1 host=victim_machine
+| fields *
+| pstree child=Image parent=ParentImage method="r"
 | table tree
 ```
 

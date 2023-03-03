@@ -53,3 +53,10 @@ index=sysmon EventCode=1 host=victim_machine
 | table tree
 ```
 
+Use legacy recursive method (By default iterative algorithm method="i" used now)
+```
+index=sysmon EventCode=1 host=victim_machine
+| fields *
+| pstree child=Image parent=ParentImage method="r"
+| table tree
+```
