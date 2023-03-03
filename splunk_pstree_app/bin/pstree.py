@@ -75,9 +75,15 @@ class PSTreeCommand(EventingCommand):
         
         spaces = Option(
         doc='''
-        **Syntax:** **tabs=***int*
+        **Syntax:** **spaces=***int*
         **Description:** Name of the field that holds detail value for child field''',
         require=False, validate=validators.Integer())
+        
+        method = Option(
+        doc='''
+        **Syntax:** **method=***str*
+        **Description:** Algorithm to use for pstree generation; r for Recursive, i for Iterative (default)''',
+        require=False, validate=validators.Set("r","i"))
 
         def make_tree(self,parent,details, tree, indent, return_array, prefix, spaces):
             #Adjust number of spaces to keep consistently spaced column for details
@@ -104,24 +110,64 @@ class PSTreeCommand(EventingCommand):
                 children=[]
                 #Set default spaces to 120
                 spaces=120
+                indent="`` "
                 if self.spaces:
                     spaces=self.spaces
+                method="i"
+                if self.method:
+                    method=self.method
                 # For every event add parent as key in outer dict and child as key in nested dict
                 for record in records:
                     # If detail exists for the event set as value for inner dict other wise set as empty
-                    self.logger.debug('%s:%s', self.parent,record)
                     if self.detail:
                         tree[record[self.parent]][record[self.child]]=record[self.detail]
                     else:
                         tree[record[self.parent]][record[self.child]]=""
                     #Add child to array to be able find root of pstree - every process associated with an EventCode 1 will be in this array
                     children.append(record[self.child])
-                for parent in tree:
-                    #For every parent check if in children array - only Parent Processes with no Process Creation event(Event Code 1) will match this criteria
-                    if parent not in children:
-                            tmp=[]
-                            #Recursively build tree for every root process
-                            self.make_tree(parent,'',tree,'',tmp,'',spaces)
-                            yield {"tree":tmp}
+                    
+                if method=="r":
+                    for parent in tree:
+                        #For every parent check if in children array - only Parent Processes with no Process Creation event(Event Code 1) will match this criteria
+                        if parent not in children:
+                                tmp=[]
+                                #Recursively build tree for every root process
+                                self.make_tree(parent,'',tree,'',tmp,'',spaces)
+                                yield {"tree":tmp}
+                else:
+                    for parent in tree:
+                        #For every parent check if in children array - only Parent Processes with no Process Creation event(Event Code 1) will match this criteria
+                        if parent not in children:
+                            stack=collections.deque([])
+                            branches=[]
+                            preorder=[]
+                            branches.append(parent)
+                            preorder.append(parent)
+                            stack.append(parent)
+                            depth=-1
+                            while len(stack)>0:
+                                flag=0
+                                if stack[len(stack)-1] not in tree.keys():
+                                    stack.pop()
+                                    depth=depth-1
+                                else:
+                                    parent=stack[len(stack)-1]
+                                for child in tree[parent].keys():
+                                    if child not in preorder:
+                                        flag=1
+                                        depth=depth+1
+                                        stack.append(child)
+                                        preorder.append(child)
+                                        prefix=(indent*depth)+"|--- "
+                                        space=" "
+                                        if (len(child)+len(prefix)) < spaces:
+                                            space=space*(spaces-len(prefix)-len(child))
+                                        branches.append(prefix+child+space+tree[parent][child])
+                                        break;
+                                if flag==0:
+                                    stack.pop()
+                                    depth=depth-1
+
+                            yield {"tree":branches}
 
 dispatch(PSTreeCommand, sys.argv, sys.stdin, sys.stdout, __name__)
