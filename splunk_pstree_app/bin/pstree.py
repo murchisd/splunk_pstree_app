@@ -110,6 +110,7 @@ class PSTreeCommand(EventingCommand):
                 children=[]
                 #Set default spaces to 120
                 spaces=120
+                indent="`` "
                 if self.spaces:
                     spaces=self.spaces
                 method="i"
@@ -125,7 +126,7 @@ class PSTreeCommand(EventingCommand):
                     #Add child to array to be able find root of pstree - every process associated with an EventCode 1 will be in this array
                     children.append(record[self.child])
                     
-                if method="r"
+                if method=="r":
                     for parent in tree:
                         #For every parent check if in children array - only Parent Processes with no Process Creation event(Event Code 1) will match this criteria
                         if parent not in children:
@@ -135,38 +136,38 @@ class PSTreeCommand(EventingCommand):
                                 yield {"tree":tmp}
                 else:
                     for parent in tree:
-                    #For every parent check if in children array - only Parent Processes with no Process Creation event(Event Code 1) will match this criteria
-                    if parent not in children:
-                        stack=collections.deque([])
-                        branches=[]
-                        preorder=[]
-                        branches.append(parent)
-                        preorder.append(parent)
-                        stack.append(parent)
-                        depth=-1
-                        while len(stack)>0:
-                            flag=0
-                            if stack[len(stack)-1] not in tree.keys():
-                                stack.pop()
-                                depth=depth-1
-                            else:
-                                parent=stack[len(stack)-1]
-                            for child in tree[parent].keys():
-                                if child not in preorder:
-                                    flag=1
-                                    depth=depth+1
-                                    stack.append(child)
-                                    preorder.append(child)
-                                    prefix=(indent*depth)+"|--- "
-                                    space=" "
-                                    if (len(child)+len(prefix)) < spaces:
-                                        space=space*(spaces-len(prefix)-len(child))
-                                    branches.append(prefix+c+space+tree[parent][child])
-                                    break;
-                            if flag==0:
-                                stack.pop()
-                                depth=depth-1
+                        #For every parent check if in children array - only Parent Processes with no Process Creation event(Event Code 1) will match this criteria
+                        if parent not in children:
+                            stack=collections.deque([])
+                            branches=[]
+                            preorder=[]
+                            branches.append(parent)
+                            preorder.append(parent)
+                            stack.append(parent)
+                            depth=-1
+                            while len(stack)>0:
+                                flag=0
+                                if stack[len(stack)-1] not in tree.keys():
+                                    stack.pop()
+                                    depth=depth-1
+                                else:
+                                    parent=stack[len(stack)-1]
+                                for child in tree[parent].keys():
+                                    if child not in preorder:
+                                        flag=1
+                                        depth=depth+1
+                                        stack.append(child)
+                                        preorder.append(child)
+                                        prefix=(indent*depth)+"|--- "
+                                        space=" "
+                                        if (len(child)+len(prefix)) < spaces:
+                                            space=space*(spaces-len(prefix)-len(child))
+                                        branches.append(prefix+child+space+tree[parent][child])
+                                        break;
+                                if flag==0:
+                                    stack.pop()
+                                    depth=depth-1
 
-                        yield {"tree":branches}
+                            yield {"tree":branches}
 
 dispatch(PSTreeCommand, sys.argv, sys.stdin, sys.stdout, __name__)

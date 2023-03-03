@@ -124,7 +124,7 @@ class PSTreeCommand_V2(EventingCommand):
                                     space=" "
                                     if (len(child)+len(prefix)) < spaces:
                                         space=space*(spaces-len(prefix)-len(child))
-                                    branches.append(prefix+c+space+tree[parent][child])
+                                    branches.append(prefix+child+space+tree[parent][child])
                                     break;
                             if flag==0:
                                 stack.pop()
