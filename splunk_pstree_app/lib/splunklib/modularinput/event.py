@@ -1,4 +1,4 @@
-# Copyright 2011-2015 Splunk, Inc.
+# Copyright © 2011-2024 Splunk, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"): you may
 # not use this file except in compliance with the License. You may obtain
@@ -12,22 +12,30 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from __future__ import absolute_import
 from io import TextIOBase
-from splunklib.six import ensure_text
+import xml.etree.ElementTree as ET
 
-try:
-    import xml.etree.cElementTree as ET
-except ImportError as ie:
-    import xml.etree.ElementTree as ET
+from ..utils import ensure_str
 
-class Event(object):
+
+class Event:
     """Represents an event or fragment of an event to be written by this modular input to Splunk.
 
     To write an input to a stream, call the ``write_to`` function, passing in a stream.
     """
-    def __init__(self, data=None, stanza=None, time=None, host=None, index=None, source=None,
-                 sourcetype=None, done=True, unbroken=True):
+
+    def __init__(
+        self,
+        data=None,
+        stanza=None,
+        time=None,
+        host=None,
+        index=None,
+        source=None,
+        sourcetype=None,
+        done=True,
+        unbroken=True,
+    ):
         """There are no required parameters for constructing an Event
 
         **Example with minimal configuration**::
@@ -81,7 +89,9 @@ class Event(object):
         :param stream: stream to write XML to.
         """
         if self.data is None:
-            raise ValueError("Events must have at least the data field set to be written to XML.")
+            raise ValueError(
+                "Events must have at least the data field set to be written to XML."
+            )
 
         event = ET.Element("event")
         if self.stanza is not None:
@@ -98,7 +108,7 @@ class Event(object):
             ("sourcetype", self.sourceType),
             ("index", self.index),
             ("host", self.host),
-            ("data", self.data)
+            ("data", self.data),
         ]
         for node, value in subelements:
             if value is not None:
@@ -108,7 +118,7 @@ class Event(object):
             ET.SubElement(event, "done")
 
         if isinstance(stream, TextIOBase):
-            stream.write(ensure_text(ET.tostring(event)))
+            stream.write(ensure_str(ET.tostring(event)))
         else:
             stream.write(ET.tostring(event))
         stream.flush()
