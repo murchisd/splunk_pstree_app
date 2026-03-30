@@ -1,4 +1,4 @@
-# Copyright 2011-2015 Splunk, Inc.
+# Copyright © 2011-2024 Splunk, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"): you may
 # not use this file except in compliance with the License. You may obtain
@@ -12,13 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from __future__ import absolute_import
-try:
-    import xml.etree.cElementTree as ET
-except ImportError as ie:
-    import xml.etree.ElementTree as ET
-
+import xml.etree.ElementTree as ET
 from .utils import parse_xml_data
+
 
 class InputDefinition:
     """``InputDefinition`` encodes the XML defining inputs that Splunk passes to
@@ -29,7 +25,8 @@ class InputDefinition:
         i = InputDefinition()
 
     """
-    def __init__ (self):
+
+    def __init__(self):
         self.metadata = {}
         self.inputs = {}
 

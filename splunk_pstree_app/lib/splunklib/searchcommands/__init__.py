@@ -1,6 +1,6 @@
 # coding=utf-8
 #
-# Copyright © 2011-2015 Splunk, Inc.
+# Copyright © 2011-2024 Splunk, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"): you may
 # not use this file except in compliance with the License. You may obtain
@@ -134,13 +134,15 @@
 
 .. topic:: References
 
-  1. `Search command style guide <http://docs.splunk.com/Documentation/Splunk/6.0/Search/Searchcommandstyleguide>`__
+  1. `Custom Search Command manual: <https://dev.splunk.com/enterprise/docs/devtools/customsearchcommands>`__
 
-  2. `Commands.conf.spec <http://docs.splunk.com/Documentation/Splunk/5.0.5/Admin/Commandsconf>`_
+  2. `Create Custom Search Commands with commands.conf.spec <http://docs.splunk.com/Documentation/Splunk/latest/Admin/Commandsconf>`_
+
+  3. `Configure seach assistant with searchbnf.conf <https://docs.splunk.com/Documentation/Splunk/latest/Admin/Searchbnfconf>`_
+
+  4. `Control search distribution with distsearch.conf <https://docs.splunk.com/Documentation/Splunk/latest/Admin/Distsearchconf>`_
 
 """
-
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from .environment import *
 from .decorators import *

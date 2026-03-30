@@ -1,6 +1,6 @@
 # coding=utf-8
 #
-# Copyright © 2011-2015 Splunk, Inc.
+# Copyright © 2011-2024 Splunk, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"): you may
 # not use this file except in compliance with the License. You may obtain
@@ -14,18 +14,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from logging import getLogger, root, StreamHandler
 from logging.config import fileConfig
-from os import chdir, environ, path
-from splunklib.six.moves import getcwd
-
+from os import chdir, environ, path, getcwd
 import sys
 
 
 def configure_logging(logger_name, filename=None):
-    """ Configure logging and return the named logger and the location of the logging configuration file loaded.
+    """Configure logging and return the named logger and the location of the logging configuration file loaded.
 
     This function expects a Splunk app directory structure::
 
@@ -67,13 +64,17 @@ def configure_logging(logger_name, filename=None):
     """
     if filename is None:
         if logger_name is None:
-            probing_paths = [path.join('local', 'logging.conf'), path.join('default', 'logging.conf')]
+            probing_paths = [
+                path.join("local", "logging.conf"),
+                path.join("default", "logging.conf"),
+            ]
         else:
             probing_paths = [
-                path.join('local', logger_name + '.logging.conf'),
-                path.join('default', logger_name + '.logging.conf'),
-                path.join('local', 'logging.conf'),
-                path.join('default', 'logging.conf')]
+                path.join("local", logger_name + ".logging.conf"),
+                path.join("default", logger_name + ".logging.conf"),
+                path.join("local", "logging.conf"),
+                path.join("default", "logging.conf"),
+            ]
         for relative_path in probing_paths:
             configuration_file = path.join(app_root, relative_path)
             if path.exists(configuration_file):
@@ -81,16 +82,18 @@ def configure_logging(logger_name, filename=None):
                 break
     elif not path.isabs(filename):
         found = False
-        for conf in 'local', 'default':
+        for conf in "local", "default":
             configuration_file = path.join(app_root, conf, filename)
             if path.exists(configuration_file):
                 filename = configuration_file
                 found = True
                 break
         if not found:
-            raise ValueError('Logging configuration file "{}" not found in local or default directory'.format(filename))
+            raise ValueError(
+                f'Logging configuration file "{filename}" not found in local or default directory'
+            )
     elif not path.exists(filename):
-        raise ValueError('Logging configuration file "{}" not found'.format(filename))
+        raise ValueError(f'Logging configuration file "{filename}" not found')
 
     if filename is not None:
         global _current_logging_configuration_file
@@ -100,7 +103,7 @@ def configure_logging(logger_name, filename=None):
             working_directory = getcwd()
             chdir(app_root)
             try:
-                fileConfig(filename, {'SPLUNK_HOME': splunk_home})
+                fileConfig(filename, {"SPLUNK_HOME": splunk_home})
             finally:
                 chdir(working_directory)
             _current_logging_configuration_file = filename
@@ -113,11 +116,17 @@ def configure_logging(logger_name, filename=None):
 
 _current_logging_configuration_file = None
 
-splunk_home = path.abspath(path.join(getcwd(), environ.get('SPLUNK_HOME', '')))
-app_file = getattr(sys.modules['__main__'], '__file__', sys.executable)
+splunk_home = path.abspath(path.join(getcwd(), environ.get("SPLUNK_HOME", "")))
+app_file = getattr(sys.modules["__main__"], "__file__", sys.executable)
 app_root = path.dirname(path.abspath(path.dirname(app_file)))
 
-splunklib_logger, logging_configuration = configure_logging('splunklib')
+splunklib_logger, logging_configuration = configure_logging("splunklib")
 
 
-__all__ = ['app_file', 'app_root', 'logging_configuration', 'splunk_home', 'splunklib_logger']
+__all__ = [
+    "app_file",
+    "app_root",
+    "logging_configuration",
+    "splunk_home",
+    "splunklib_logger",
+]
